@@ -358,6 +358,16 @@
         opacity: 1;
       }
 
+      line.level-4 { opacity: 1; }
+      line.level-3 { opacity: 1; }
+      line.level-2 { opacity: 1; }
+      line.level-1 { opacity: 1; }
+      line.level-0 { opacity: 1; }
+
+      line.hidden {
+        opacity: 0;
+      }
+
       path {
         fill: none;
         stroke: white;
@@ -368,6 +378,16 @@
       }
 
       path.visible {
+        opacity: 1;
+      }
+
+      path.level-4 { opacity: 1; }
+      path.level-3 { opacity: 1; }
+      path.level-2 { opacity: 1; }
+      path.level-1 { opacity: 1; }
+      path.level-0 { opacity: 1; }
+
+      path.hidden {
         opacity: 0;
       }
 
@@ -424,6 +444,21 @@
       />
       <div class="round-info" id="roundInfo">
         Round 1: Leaf Nodes (16 competitors)
+      </div>
+    </div>
+
+    <div class="slider-container">
+      <label class="slider-label">Path Visibility</label>
+      <input
+        type="range"
+        min="0"
+        max="4"
+        value="0"
+        class="tournament-slider"
+        id="pathSlider"
+      />
+      <div class="round-info" id="pathInfo">
+        All paths visible
       </div>
     </div>
 
@@ -492,10 +527,13 @@
         const svg = document.getElementById("tree-svg");
         const slider = document.getElementById("roundSlider");
         const roundInfo = document.getElementById("roundInfo");
+        const pathSlider = document.getElementById("pathSlider");
+        const pathInfo = document.getElementById("pathInfo");
         const resetBtn = document.getElementById("reset-tournament");
         const autoPlayBtn = document.getElementById("auto-play");
 
         let currentRound = 0;
+        let pathVisibilityLevel = 0;
         let winners = {}; // Store winners for each round
         let isAutoPlaying = false;
 
@@ -542,6 +580,63 @@
           0: ["root"],
         };
 
+        // Define level mapping for paths based on child node level
+        const pathLevels = {
+          "root-node-a": 0,
+          "root-node-b": 0,
+          "node-a-node-a1": 1,
+          "node-a-node-a2": 1,
+          "node-b-node-b1": 1,
+          "node-b-node-b2": 1,
+          "node-a1-node-a1-1": 2,
+          "node-a1-node-a1-2": 2,
+          "node-a2-node-a2-1": 2,
+          "node-a2-node-a2-2": 2,
+          "node-b1-node-b1-1": 2,
+          "node-b1-node-b1-2": 2,
+          "node-b2-node-b2-1": 2,
+          "node-b2-node-b2-2": 2,
+          "node-a1-1-node-a1-1-1": 3,
+          "node-a1-1-node-a1-1-2": 3,
+          "node-a1-2-node-a1-2-1": 3,
+          "node-a1-2-node-a1-2-2": 3,
+          "node-a2-1-node-a2-1-1": 3,
+          "node-a2-1-node-a2-1-2": 3,
+          "node-a2-2-node-a2-2-1": 3,
+          "node-a2-2-node-a2-2-2": 3,
+          "node-b1-1-node-b1-1-1": 3,
+          "node-b1-1-node-b1-1-2": 3,
+          "node-b1-2-node-b1-2-1": 3,
+          "node-b1-2-node-b1-2-2": 3,
+          "node-b2-1-node-b2-1-1": 3,
+          "node-b2-1-node-b2-1-2": 3,
+          "node-b2-2-node-b2-2-1": 3,
+          "node-b2-2-node-b2-2-2": 3
+        };
+
+        // i created a function to get path level from node relationships
+        function getPathLevel(parent, child) {
+          // level 4 connections (leaf to level 3)
+          if (child.includes('-1-1') || child.includes('-2-1') || child.includes('-1-2') || child.includes('-2-2')) {
+            return 4;
+          }
+          // level 3 connections (level 3 to level 2)
+          if (child.includes('-1') || child.includes('-2')) {
+            if (!child.includes('-1-') && !child.includes('-2-')) {
+              return 3;
+            }
+          }
+          // level 2 connections (level 2 to level 1)
+          if ((child === 'node-a1' || child === 'node-a2' || child === 'node-b1' || child === 'node-b2')) {
+            return 2;
+          }
+          // level 1 connections (level 1 to root)
+          if (child === 'node-a' || child === 'node-b') {
+            return 1;
+          }
+          return 0;
+        }
+
         // Define parent-child relationships for connections
         const relationships = [
           { parent: "root", child: "node-a" },
@@ -586,6 +681,41 @@
           ];
           roundInfo.textContent =
             roundNames[4 - round] || "Tournament Complete";
+        }
+
+        function updatePathInfo(level) {
+          const pathNames = [
+            "All paths visible",
+            "Level 4 paths hidden (leaf connections)",
+            "Level 3-4 paths hidden",
+            "Level 2-4 paths hidden",
+            "Only root paths visible"
+          ];
+          pathInfo.textContent = pathNames[level] || "All paths hidden";
+        }
+
+        function updatePathVisibility(level) {
+          // i implemented this to control which path levels are visible based on the slider
+          document.querySelectorAll('line, path').forEach(connection => {
+            const parent = connection.getAttribute('data-parent');
+            const child = connection.getAttribute('data-child');
+            
+            if (parent && child) {
+              const pathLevel = getPathLevel(parent, child);
+              
+              // remove existing level classes and hidden class
+              connection.classList.remove('hidden', 'level-0', 'level-1', 'level-2', 'level-3', 'level-4');
+              connection.classList.add(`level-${pathLevel}`);
+              
+              // hide paths from highest level (4) down to the specified level
+              // level 0 = all visible, level 1 = hide level 4, level 2 = hide level 3&4, etc.
+              if (pathLevel > (4 - level)) {
+                connection.classList.add('hidden');
+              }
+            }
+          });
+          
+          updatePathInfo(level);
         }
 
         function selectWinners(currentLevel, nextLevel) {
@@ -682,7 +812,7 @@
           updateTournament(currentRound);
         }
 
-        // Slider event listener
+        // Slider event listeners
         slider.addEventListener("input", (e) => {
           if (!isAutoPlaying) {
             const targetRound = parseInt(e.target.value);
@@ -696,6 +826,11 @@
               }
             }
           }
+        });
+
+        pathSlider.addEventListener("input", (e) => {
+          pathVisibilityLevel = parseInt(e.target.value);
+          updatePathVisibility(pathVisibilityLevel);
         });
 
         function resetTournament() {
@@ -737,6 +872,10 @@
 
             element.setAttribute("data-parent", rel.parent);
             element.setAttribute("data-child", rel.child);
+            
+            // i added level classification for path visibility control
+            const pathLevel = getPathLevel(rel.parent, rel.child);
+            element.classList.add(`level-${pathLevel}`);
           });
         }
 
@@ -807,6 +946,7 @@
 
         // Initialize
         resetTournament();
+        updatePathVisibility(pathVisibilityLevel);
       });
     </script>
   </body>
