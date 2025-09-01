@@ -433,32 +433,17 @@
     </div>
 
     <div class="slider-container">
-      <label class="slider-label">Tournament Round</label>
+      <label class="slider-label">Tournament Level</label>
       <input
         type="range"
         min="0"
         max="3"
         value="0"
         class="tournament-slider"
-        id="roundSlider"
+        id="slider"
       />
       <div class="round-info" id="roundInfo">
-        Round 1: Leaf Nodes (16 competitors)
-      </div>
-    </div>
-
-    <div class="slider-container">
-      <label class="slider-label">Path Visibility</label>
-      <input
-        type="range"
-        min="0"
-        max="4"
-        value="0"
-        class="tournament-slider"
-        id="pathSlider"
-      />
-      <div class="round-info" id="pathInfo">
-        All paths visible
+        Level 4 nodes & all paths visible
       </div>
     </div>
 
@@ -525,15 +510,12 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const svg = document.getElementById("tree-svg");
-        const slider = document.getElementById("roundSlider");
+        const slider = document.getElementById("slider");
         const roundInfo = document.getElementById("roundInfo");
-        const pathSlider = document.getElementById("pathSlider");
-        const pathInfo = document.getElementById("pathInfo");
         const resetBtn = document.getElementById("reset-tournament");
         const autoPlayBtn = document.getElementById("auto-play");
 
         let currentRound = 0;
-        let pathVisibilityLevel = 0;
         let winners = {}; // Store winners for each round
         let isAutoPlaying = false;
 
@@ -695,10 +677,10 @@
 
         function updateRoundInfo(round) {
           const roundNames = [
-            "Only level 4 nodes visible (leaf nodes)",
-            "Only level 3 nodes visible",
-            "Only level 2 nodes visible",
-            "Only root node visible"
+            "Level 4 nodes & all paths visible",
+            "Level 3 nodes & level 4 paths hidden",
+            "Level 2 nodes & level 3-4 paths hidden",
+            "Root node & level 2-4 paths hidden"
           ];
           roundInfo.textContent = roundNames[round] || "All nodes hidden";
         }
@@ -729,16 +711,7 @@
           });
         }
 
-        function updatePathInfo(level) {
-          const pathNames = [
-            "All paths visible",
-            "Level 4 paths hidden (leaf connections)",
-            "Level 3-4 paths hidden",
-            "Level 2-4 paths hidden",
-            "Only root paths visible"
-          ];
-          pathInfo.textContent = pathNames[level] || "All paths hidden";
-        }
+
 
         function updatePathVisibility(level) {
           // i implemented this to control which path levels are visible based on the slider
@@ -753,15 +726,12 @@
               connection.classList.remove('hidden', 'level-0', 'level-1', 'level-2', 'level-3', 'level-4');
               connection.classList.add(`level-${pathLevel}`);
               
-              // hide paths from highest level (4) down to the specified level
-              // level 0 = all visible, level 1 = hide level 4, level 2 = hide level 3&4, etc.
-              if (pathLevel > (4 - level)) {
+              // hide paths from highest level (4) down to the specified level (but not beyond level 2)
+              if (pathLevel >= (4 - level + 1)) {
                 connection.classList.add('hidden');
               }
             }
           });
-          
-          updatePathInfo(level);
         }
 
         function selectWinners(currentLevel, nextLevel) {
@@ -794,8 +764,9 @@
         }
 
         function updateTournament(round) {
-          // i simplified this to only control node visibility by levels
+          // i control both node and path visibility together
           updateNodeVisibility(round);
+          updatePathVisibility(round);
           updateRoundInfo(round);
         }
 
@@ -823,20 +794,12 @@
           }
         });
 
-        pathSlider.addEventListener("input", (e) => {
-          pathVisibilityLevel = parseInt(e.target.value);
-          updatePathVisibility(pathVisibilityLevel);
-        });
-
         function resetTournament() {
           currentRound = 0;
           winners = {};
           slider.value = 0;
-          pathSlider.value = 0;
-          pathVisibilityLevel = 0;
           updateTournament(0);
           drawConnections();
-          updatePathVisibility(0);
         }
 
         function drawConnections() {
