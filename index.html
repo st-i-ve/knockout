@@ -437,7 +437,7 @@
       <input
         type="range"
         min="0"
-        max="4"
+        max="3"
         value="0"
         class="tournament-slider"
         id="roundSlider"
@@ -695,7 +695,6 @@
 
         function updateRoundInfo(round) {
           const roundNames = [
-            "All nodes visible",
             "Only level 4 nodes visible (leaf nodes)",
             "Only level 3 nodes visible",
             "Only level 2 nodes visible",
@@ -705,7 +704,7 @@
         }
 
         function updateNodeVisibility(level) {
-          // i show only nodes at the specific level selected
+          // i show only nodes at the specific level selected, root always visible
           Object.values(nodes).forEach(node => {
             const classList = Array.from(node.classList);
             const nodeClass = classList.find(cls => cls !== 'node' && cls !== 'visible' && cls !== 'winner');
@@ -716,12 +715,12 @@
               // reset all classes first
               node.classList.remove('visible', 'winner');
               
-              if (level === 0) {
-                // show all nodes at level 0
+              // root node (level 0) is always visible
+              if (nodeLevel === 0) {
                 node.classList.add('visible');
               } else {
-                // show only nodes at the specific level (5 - level)
-                const targetLevel = 5 - level;
+                // show only nodes at the specific level based on slider (0-3 range)
+                const targetLevel = 4 - level;
                 if (nodeLevel === targetLevel) {
                   node.classList.add('visible');
                 }
@@ -797,7 +796,6 @@
         function updateTournament(round) {
           // i simplified this to only control node visibility by levels
           updateNodeVisibility(round);
-          drawConnections();
           updateRoundInfo(round);
         }
 
