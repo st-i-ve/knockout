@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horizontal Symmetrical Bilateral Tree with L-Shaped Connections</title>
+    <title>Tournament Tree - Knockout System</title>
     <style>
         * {
             margin: 0;
@@ -42,6 +42,54 @@
             line-height: 1.6;
         }
         
+        .slider-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .slider-label {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .tournament-slider {
+            width: 300px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            margin: 10px 0;
+        }
+        
+        .tournament-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .tournament-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .round-info {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+        
         .tree-container {
             position: relative;
             width: 1200px;
@@ -64,13 +112,30 @@
             font-weight: bold;
             position: absolute;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
             font-size: 1.2rem;
             z-index: 10;
             border: 3px solid white;
+            opacity: 0.3;
         }
         
-        .node:hover {
+        .node.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .node.winner {
+            animation: pulse 1s ease-in-out;
+            box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.7);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .node:hover.visible {
             transform: scale(1.1);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
@@ -279,6 +344,12 @@
             stroke: white;
             stroke-width: 2;
             stroke-linecap: round;
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+        
+        line.visible {
+            opacity: 1;
         }
         
         path {
@@ -286,6 +357,12 @@
             stroke: white;
             stroke-width: 2;
             stroke-linecap: round;
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+        
+        path.visible {
+            opacity: 1;
         }
         
         .controls {
@@ -322,102 +399,121 @@
 </head>
 <body>
     <div class="container">
-        <h1>Horizontal Symmetrical Bilateral Tree</h1>
-        <p class="description">This tree has a symmetrical structure with node A and its children on the left, and node B and its children on the right. Each node has exactly two children.</p>
+        <h1>Tournament Tree - Knockout System</h1>
+        <p class="description">Use the slider to progress through tournament rounds. Winners advance to the next level!</p>
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label">Tournament Round</label>
+        <input type="range" min="0" max="4" value="0" class="tournament-slider" id="roundSlider">
+        <div class="round-info" id="roundInfo">Round 1: Leaf Nodes (16 competitors)</div>
     </div>
     
     <div class="tree-container">
         <svg id="tree-svg"></svg>
         
         <!-- Root node -->
-        <div class="node root">X</div>
+        <div class="node root" data-level="0">X</div>
         
         <!-- Level 1 nodes -->
-        <div class="node node-a">A</div>
-        <div class="node node-b">B</div>
+        <div class="node node-a" data-level="1">A</div>
+        <div class="node node-b" data-level="1">B</div>
         
         <!-- Level 2 nodes (children of A and B) -->
-        <div class="node node-a1">A1</div>
-        <div class="node node-a2">A2</div>
-        <div class="node node-b1">B1</div>
-        <div class="node node-b2">B2</div>
+        <div class="node node-a1" data-level="2">A1</div>
+        <div class="node node-a2" data-level="2">A2</div>
+        <div class="node node-b1" data-level="2">B1</div>
+        <div class="node node-b2" data-level="2">B2</div>
         
         <!-- Level 3 nodes -->
-        <div class="node node-a1-1">A1-1</div>
-        <div class="node node-a1-2">A1-2</div>
-        <div class="node node-a2-1">A2-1</div>
-        <div class="node node-a2-2">A2-2</div>
+        <div class="node node-a1-1" data-level="3">A1-1</div>
+        <div class="node node-a1-2" data-level="3">A1-2</div>
+        <div class="node node-a2-1" data-level="3">A2-1</div>
+        <div class="node node-a2-2" data-level="3">A2-2</div>
         
-        <div class="node node-b1-1">B1-1</div>
-        <div class="node node-b1-2">B1-2</div>
-        <div class="node node-b2-1">B2-1</div>
-        <div class="node node-b2-2">B2-2</div>
+        <div class="node node-b1-1" data-level="3">B1-1</div>
+        <div class="node node-b1-2" data-level="3">B1-2</div>
+        <div class="node node-b2-1" data-level="3">B2-1</div>
+        <div class="node node-b2-2" data-level="3">B2-2</div>
         
-        <!-- Level 4 nodes -->
-        <div class="node node-a1-1-1">A1-1-1</div>
-        <div class="node node-a1-1-2">A1-1-2</div>
-        <div class="node node-a1-2-1">A1-2-1</div>
-        <div class="node node-a1-2-2">A1-2-2</div>
-        <div class="node node-a2-1-1">A2-1-1</div>
-        <div class="node node-a2-1-2">A2-1-2</div>
-        <div class="node node-a2-2-1">A2-2-1</div>
-        <div class="node node-a2-2-2">A2-2-2</div>
+        <!-- Level 4 nodes (leaf nodes) -->
+        <div class="node node-a1-1-1" data-level="4">A1-1-1</div>
+        <div class="node node-a1-1-2" data-level="4">A1-1-2</div>
+        <div class="node node-a1-2-1" data-level="4">A1-2-1</div>
+        <div class="node node-a1-2-2" data-level="4">A1-2-2</div>
+        <div class="node node-a2-1-1" data-level="4">A2-1-1</div>
+        <div class="node node-a2-1-2" data-level="4">A2-1-2</div>
+        <div class="node node-a2-2-1" data-level="4">A2-2-1</div>
+        <div class="node node-a2-2-2" data-level="4">A2-2-2</div>
         
-        <div class="node node-b1-1-1">B1-1-1</div>
-        <div class="node node-b1-1-2">B1-1-2</div>
-        <div class="node node-b1-2-1">B1-2-1</div>
-        <div class="node node-b1-2-2">B1-2-2</div>
-        <div class="node node-b2-1-1">B2-1-1</div>
-        <div class="node node-b2-1-2">B2-1-2</div>
-        <div class="node node-b2-2-1">B2-2-1</div>
-        <div class="node node-b2-2-2">B2-2-2</div>
+        <div class="node node-b1-1-1" data-level="4">B1-1-1</div>
+        <div class="node node-b1-1-2" data-level="4">B1-1-2</div>
+        <div class="node node-b1-2-1" data-level="4">B1-2-1</div>
+        <div class="node node-b1-2-2" data-level="4">B1-2-2</div>
+        <div class="node node-b2-1-1" data-level="4">B2-1-1</div>
+        <div class="node node-b2-1-2" data-level="4">B2-1-2</div>
+        <div class="node node-b2-2-1" data-level="4">B2-2-1</div>
+        <div class="node node-b2-2-2" data-level="4">B2-2-2</div>
     </div>
     
     <div class="controls">
-        <button id="toggle-labels">Toggle Labels</button>
-        <button id="reset-view">Reset View</button>
+        <button id="reset-tournament">Reset Tournament</button>
+        <button id="auto-play">Auto Play</button>
     </div>
     
     <div class="instructions">
-        <p>Hover over nodes to see them highlight. Each node has exactly two children, creating a balanced binary tree structure.</p>
+        <p>Move the slider to advance through tournament rounds. Each round, winners are randomly selected to advance to the next level. The tournament continues until either A or B reaches the root position X.</p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const svg = document.getElementById('tree-svg');
-            const toggleLabelsBtn = document.getElementById('toggle-labels');
-            const resetViewBtn = document.getElementById('reset-view');
+            const slider = document.getElementById('roundSlider');
+            const roundInfo = document.getElementById('roundInfo');
+            const resetBtn = document.getElementById('reset-tournament');
+            const autoPlayBtn = document.getElementById('auto-play');
+            
+            let currentRound = 0;
+            let winners = {}; // Store winners for each round
+            let isAutoPlaying = false;
             
             // Get all nodes
             const nodes = {};
             document.querySelectorAll('.node').forEach(node => {
-                nodes[node.classList[1]] = node;
+                const classList = Array.from(node.classList);
+                const nodeClass = classList.find(cls => cls !== 'node');
+                nodes[nodeClass] = node;
             });
             
-            // Define parent-child relationships
+            // Define the tournament structure
+            const tournamentStructure = {
+                4: ['node-a1-1-1', 'node-a1-1-2', 'node-a1-2-1', 'node-a1-2-2', 
+                    'node-a2-1-1', 'node-a2-1-2', 'node-a2-2-1', 'node-a2-2-2',
+                    'node-b1-1-1', 'node-b1-1-2', 'node-b1-2-1', 'node-b1-2-2',
+                    'node-b2-1-1', 'node-b2-1-2', 'node-b2-2-1', 'node-b2-2-2'],
+                3: ['node-a1-1', 'node-a1-2', 'node-a2-1', 'node-a2-2',
+                    'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'],
+                2: ['node-a1', 'node-a2', 'node-b1', 'node-b2'],
+                1: ['node-a', 'node-b'],
+                0: ['root']
+            };
+            
+            // Define parent-child relationships for connections
             const relationships = [
-                // Root to level 1
                 {parent: 'root', child: 'node-a'},
                 {parent: 'root', child: 'node-b'},
-                
-                // Level 1 to level 2
                 {parent: 'node-a', child: 'node-a1'},
                 {parent: 'node-a', child: 'node-a2'},
                 {parent: 'node-b', child: 'node-b1'},
                 {parent: 'node-b', child: 'node-b2'},
-                
-                // Level 2 to level 3
                 {parent: 'node-a1', child: 'node-a1-1'},
                 {parent: 'node-a1', child: 'node-a1-2'},
                 {parent: 'node-a2', child: 'node-a2-1'},
                 {parent: 'node-a2', child: 'node-a2-2'},
-                
                 {parent: 'node-b1', child: 'node-b1-1'},
                 {parent: 'node-b1', child: 'node-b1-2'},
                 {parent: 'node-b2', child: 'node-b2-1'},
                 {parent: 'node-b2', child: 'node-b2-2'},
-                
-                // Level 3 to level 4
                 {parent: 'node-a1-1', child: 'node-a1-1-1'},
                 {parent: 'node-a1-1', child: 'node-a1-1-2'},
                 {parent: 'node-a1-2', child: 'node-a1-2-1'},
@@ -426,7 +522,6 @@
                 {parent: 'node-a2-1', child: 'node-a2-1-2'},
                 {parent: 'node-a2-2', child: 'node-a2-2-1'},
                 {parent: 'node-a2-2', child: 'node-a2-2-2'},
-                
                 {parent: 'node-b1-1', child: 'node-b1-1-1'},
                 {parent: 'node-b1-1', child: 'node-b1-1-2'},
                 {parent: 'node-b1-2', child: 'node-b1-2-1'},
@@ -437,9 +532,132 @@
                 {parent: 'node-b2-2', child: 'node-b2-2-2'}
             ];
             
-            // Draw connections
+            function updateRoundInfo(round) {
+                const roundNames = [
+                    'Final: Championship (1 winner)',
+                    'Semi-Final (2 competitors)',
+                    'Quarter-Final (4 competitors)', 
+                    'Round of 8 (8 competitors)',
+                    'Round 1: Leaf Nodes (16 competitors)'
+                ];
+                roundInfo.textContent = roundNames[4 - round] || 'Tournament Complete';
+            }
+            
+            function selectWinners(currentLevel, nextLevel) {
+                // Group current level nodes by their parent
+                const groups = {};
+                
+                relationships.forEach(rel => {
+                    if (tournamentStructure[nextLevel].includes(rel.parent)) {
+                        if (!groups[rel.parent]) {
+                            groups[rel.parent] = [];
+                        }
+                        if (tournamentStructure[currentLevel].includes(rel.child)) {
+                            groups[rel.parent].push(rel.child);
+                        }
+                    }
+                });
+                
+                // Select one winner from each group
+                const winners = [];
+                Object.keys(groups).forEach(parent => {
+                    const candidates = groups[parent];
+                    if (candidates.length > 0) {
+                        const winner = candidates[Math.floor(Math.random() * candidates.length)];
+                        winners.push({winner, parent, candidates});
+                    }
+                });
+                
+                return winners;
+            }
+            
+            function updateTournament(round) {
+                // Reset all nodes and connections
+                Object.values(nodes).forEach(node => {
+                    node.classList.remove('visible', 'winner');
+                });
+                
+                document.querySelectorAll('line, path').forEach(connection => {
+                    connection.classList.remove('visible');
+                });
+                
+                if (round === 0) {
+                    // Show only leaf nodes (level 4)
+                    tournamentStructure[4].forEach(nodeClass => {
+                        nodes[nodeClass].classList.add('visible');
+                    });
+                } else {
+                    // Show winners from previous rounds and current level
+                    for (let r = round; r >= 1; r--) {
+                        if (winners[r]) {
+                            winners[r].forEach(result => {
+                                nodes[result.parent].classList.add('visible');
+                                if (r === round) {
+                                    nodes[result.parent].classList.add('winner');
+                                }
+                                
+                                // Show connection from winner to parent
+                                const connection = document.querySelector(`[data-parent="${result.parent}"][data-child="${result.winner}"]`);
+                                if (connection) {
+                                    connection.classList.add('visible');
+                                }
+                            });
+                        }
+                    }
+                    
+                    // If we've reached the final
+                    if (round === 4) {
+                        nodes['root'].classList.add('visible');
+                        if (winners[4]) {
+                            nodes['root'].classList.add('winner');
+                        }
+                    }
+                }
+                
+                // Update connections
+                drawConnections();
+                updateRoundInfo(round);
+            }
+            
+            function progressTournament(targetRound) {
+                for (let round = currentRound + 1; round <= targetRound; round++) {
+                    if (round <= 4) {
+                        const currentLevel = 5 - round;
+                        const nextLevel = currentLevel - 1;
+                        
+                        if (nextLevel >= 0) {
+                            winners[round] = selectWinners(currentLevel, nextLevel);
+                        }
+                    }
+                }
+                currentRound = targetRound;
+                updateTournament(currentRound);
+            }
+            
+            // Slider event listener
+            slider.addEventListener('input', (e) => {
+                if (!isAutoPlaying) {
+                    const targetRound = parseInt(e.target.value);
+                    if (targetRound > currentRound) {
+                        progressTournament(targetRound);
+                    } else if (targetRound < currentRound) {
+                        // Reset and rebuild to target round
+                        resetTournament();
+                        if (targetRound > 0) {
+                            progressTournament(targetRound);
+                        }
+                    }
+                }
+            });
+            
+            function resetTournament() {
+                currentRound = 0;
+                winners = {};
+                slider.value = 0;
+                updateTournament(0);
+            }
+            
             function drawConnections() {
-                // Clear previous connections
                 svg.innerHTML = '';
                 
                 relationships.forEach(rel => {
@@ -462,39 +680,34 @@
                         y: childRect.top + childRect.height/2 - containerRect.top
                     };
                     
-                    // Special case for direct connections from root to A and B
+                    let element;
                     if (rel.parent === 'root') {
-                        drawStraightLine(parentCenter, childCenter);
+                        element = drawStraightLine(parentCenter, childCenter);
                     } else {
-                        drawLShapedLine(parentCenter, childCenter);
+                        element = drawLShapedLine(parentCenter, childCenter);
                     }
+                    
+                    element.setAttribute('data-parent', rel.parent);
+                    element.setAttribute('data-child', rel.child);
                 });
             }
             
             function drawLShapedLine(from, to) {
-                // Create an L-shaped path with two line segments
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                
-                // Determine if we're on left or right side
                 const isLeftSide = to.x < from.x;
                 
-                // Create L-shaped path: first horizontal, then vertical
                 let pathData;
-                
                 if (isLeftSide) {
-                    // For left side: go left first, then up/down
                     const midX = from.x - Math.abs(from.x - to.x) * 0.5;
                     pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
                 } else {
-                    // For right side: go right first, then up/down
                     const midX = from.x + Math.abs(from.x - to.x) * 0.5;
                     pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
                 }
                 
                 path.setAttribute('d', pathData);
-                path.setAttribute('class', 'connection');
-                
                 svg.appendChild(path);
+                return path;
             }
             
             function drawStraightLine(from, to) {
@@ -503,59 +716,43 @@
                 line.setAttribute('y1', from.y);
                 line.setAttribute('x2', to.x);
                 line.setAttribute('y2', to.y);
-                line.setAttribute('class', 'connection');
                 svg.appendChild(line);
+                return line;
             }
             
-            // Toggle node labels
-            toggleLabelsBtn.addEventListener('click', () => {
-                Object.values(nodes).forEach(node => {
-                    if (node.style.visibility === 'hidden') {
-                        node.style.visibility = 'visible';
-                    } else {
-                        node.style.visibility = 'hidden';
-                    }
-                });
+            // Reset button
+            resetBtn.addEventListener('click', resetTournament);
+            
+            // Auto play functionality
+            autoPlayBtn.addEventListener('click', () => {
+                if (isAutoPlaying) {
+                    isAutoPlaying = false;
+                    autoPlayBtn.textContent = 'Auto Play';
+                } else {
+                    isAutoPlaying = true;
+                    autoPlayBtn.textContent = 'Stop';
+                    autoPlay();
+                }
             });
             
-            // Reset view
-            resetViewBtn.addEventListener('click', () => {
-                drawConnections();
-                Object.values(nodes).forEach(node => {
-                    node.style.visibility = 'visible';
-                    node.style.transform = '';
-                    node.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.3)';
-                });
-            });
-            
-            // Add interactivity to nodes
-            Object.values(nodes).forEach(node => {
-                node.addEventListener('click', function() {
-                    // Reset all nodes first
-                    Object.values(nodes).forEach(n => {
-                        n.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.3)';
-                    });
-                    
-                    // Highlight clicked node
-                    this.style.boxShadow = '0 0 20px 10px rgba(255, 255, 255, 0.7)';
-                });
-            });
-            
-            // Initial draw
-            drawConnections();
-            
-            // Add animation to make the tree more engaging
-            let animationDelay = 0;
-            Object.values(nodes).forEach(node => {
-                node.style.opacity = '0';
-                node.style.transition = 'opacity 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease';
+            function autoPlay() {
+                if (!isAutoPlaying || currentRound >= 4) {
+                    isAutoPlaying = false;
+                    autoPlayBtn.textContent = 'Auto Play';
+                    return;
+                }
                 
                 setTimeout(() => {
-                    node.style.opacity = '1';
-                }, animationDelay);
-                
-                animationDelay += 50;
-            });
+                    slider.value = currentRound + 1;
+                    progressTournament(currentRound + 1);
+                    if (isAutoPlaying) {
+                        autoPlay();
+                    }
+                }, 1500);
+            }
+            
+            // Initialize
+            resetTournament();
         });
     </script>
 </body>
