@@ -696,16 +696,16 @@
         function updateRoundInfo(round) {
           const roundNames = [
             "All nodes visible",
-            "Level 4 nodes hidden (leaf nodes)",
-            "Level 3-4 nodes hidden",
-            "Level 2-4 nodes hidden",
+            "Only level 4 nodes visible (leaf nodes)",
+            "Only level 3 nodes visible",
+            "Only level 2 nodes visible",
             "Only root node visible"
           ];
           roundInfo.textContent = roundNames[round] || "All nodes hidden";
         }
 
         function updateNodeVisibility(level) {
-          // i implemented this to control which node levels are visible based on the slider
+          // i show only nodes at the specific level selected
           Object.values(nodes).forEach(node => {
             const classList = Array.from(node.classList);
             const nodeClass = classList.find(cls => cls !== 'node' && cls !== 'visible' && cls !== 'winner');
@@ -713,13 +713,18 @@
             if (nodeClass) {
               const nodeLevel = getNodeLevel(nodeClass);
               
-              // remove existing classes
+              // reset all classes first
               node.classList.remove('visible', 'winner');
               
-              // show nodes from root level down to the specified level
-              // level 0 = all visible, level 1 = hide level 4, level 2 = hide level 3&4, etc.
-              if (nodeLevel <= (4 - level)) {
+              if (level === 0) {
+                // show all nodes at level 0
                 node.classList.add('visible');
+              } else {
+                // show only nodes at the specific level (5 - level)
+                const targetLevel = 5 - level;
+                if (nodeLevel === targetLevel) {
+                  node.classList.add('visible');
+                }
               }
             }
           });
