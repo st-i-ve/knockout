@@ -637,6 +637,28 @@
           return 0;
         }
 
+        // i created a function to get node level from node class
+        function getNodeLevel(nodeClass) {
+          if (nodeClass === 'root') {
+            return 0;
+          }
+          if (nodeClass === 'node-a' || nodeClass === 'node-b') {
+            return 1;
+          }
+          if (nodeClass === 'node-a1' || nodeClass === 'node-a2' || nodeClass === 'node-b1' || nodeClass === 'node-b2') {
+            return 2;
+          }
+          if (nodeClass.includes('-1') || nodeClass.includes('-2')) {
+            if (!nodeClass.includes('-1-') && !nodeClass.includes('-2-')) {
+              return 3;
+            }
+          }
+          if (nodeClass.includes('-1-1') || nodeClass.includes('-2-1') || nodeClass.includes('-1-2') || nodeClass.includes('-2-2')) {
+            return 4;
+          }
+          return 4;
+        }
+
         // Define parent-child relationships for connections
         const relationships = [
           { parent: "root", child: "node-a" },
@@ -673,14 +695,34 @@
 
         function updateRoundInfo(round) {
           const roundNames = [
-            "Final: Championship (1 winner)",
-            "Semi-Final (2 competitors)",
-            "Quarter-Final (4 competitors)",
-            "Round of 8 (8 competitors)",
-            "Round 1: Leaf Nodes (16 competitors)",
+            "All nodes visible",
+            "Level 4 nodes hidden (leaf nodes)",
+            "Level 3-4 nodes hidden",
+            "Level 2-4 nodes hidden",
+            "Only root node visible"
           ];
-          roundInfo.textContent =
-            roundNames[4 - round] || "Tournament Complete";
+          roundInfo.textContent = roundNames[round] || "All nodes hidden";
+        }
+
+        function updateNodeVisibility(level) {
+          // i implemented this to control which node levels are visible based on the slider
+          Object.values(nodes).forEach(node => {
+            const classList = Array.from(node.classList);
+            const nodeClass = classList.find(cls => cls !== 'node' && cls !== 'visible' && cls !== 'winner');
+            
+            if (nodeClass) {
+              const nodeLevel = getNodeLevel(nodeClass);
+              
+              // remove existing classes
+              node.classList.remove('visible', 'winner');
+              
+              // show nodes from root level down to the specified level
+              // level 0 = all visible, level 1 = hide level 4, level 2 = hide level 3&4, etc.
+              if (nodeLevel <= (4 - level)) {
+                node.classList.add('visible');
+              }
+            }
+          });
         }
 
         function updatePathInfo(level) {
@@ -748,51 +790,8 @@
         }
 
         function updateTournament(round) {
-          // Reset all nodes and connections
-          Object.values(nodes).forEach((node) => {
-            node.classList.remove("visible", "winner");
-          });
-
-          document.querySelectorAll("line, path").forEach((connection) => {
-            connection.classList.remove("visible");
-          });
-
-          if (round === 0) {
-            // Show only leaf nodes (level 4)
-            tournamentStructure[4].forEach((nodeClass) => {
-              nodes[nodeClass].classList.add("visible");
-            });
-          } else {
-            // Show winners from previous rounds and current level
-            for (let r = round; r >= 1; r--) {
-              if (winners[r]) {
-                winners[r].forEach((result) => {
-                  nodes[result.parent].classList.add("visible");
-                  if (r === round) {
-                    nodes[result.parent].classList.add("winner");
-                  }
-
-                  // Show connection from winner to parent
-                  const connection = document.querySelector(
-                    `[data-parent="${result.parent}"][data-child="${result.winner}"]`
-                  );
-                  if (connection) {
-                    connection.classList.add("visible");
-                  }
-                });
-              }
-            }
-
-            // If we've reached the final
-            if (round === 4) {
-              nodes["root"].classList.add("visible");
-              if (winners[4]) {
-                nodes["root"].classList.add("winner");
-              }
-            }
-          }
-
-          // Update connections
+          // i simplified this to only control node visibility by levels
+          updateNodeVisibility(round);
           drawConnections();
           updateRoundInfo(round);
         }
@@ -816,15 +815,8 @@
         slider.addEventListener("input", (e) => {
           if (!isAutoPlaying) {
             const targetRound = parseInt(e.target.value);
-            if (targetRound > currentRound) {
-              progressTournament(targetRound);
-            } else if (targetRound < currentRound) {
-              // Reset and rebuild to target round
-              resetTournament();
-              if (targetRound > 0) {
-                progressTournament(targetRound);
-              }
-            }
+            currentRound = targetRound;
+            updateTournament(currentRound);
           }
         });
 
@@ -837,7 +829,11 @@
           currentRound = 0;
           winners = {};
           slider.value = 0;
+          pathSlider.value = 0;
+          pathVisibilityLevel = 0;
           updateTournament(0);
+          drawConnections();
+          updatePathVisibility(0);
         }
 
         function drawConnections() {
@@ -946,7 +942,6 @@
 
         // Initialize
         resetTournament();
-        updatePathVisibility(pathVisibilityLevel);
       });
     </script>
   </body>
