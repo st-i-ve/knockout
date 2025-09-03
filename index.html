@@ -90,10 +90,13 @@
         margin: 10px 0;
       }
 
+      /* RESPONSIVE container */
       .tree-container {
-        position: relative;
-        width: 1200px;
-        height: 600px;
+        position: relative; /* already present but be explicit */
+        width: 100%;
+        max-width: 1200px;      /* keep desktop max */
+        aspect-ratio: 1 / 2;    /* keeps 1200x600 proportions and scales */
+        min-height: 300px;      /* fallback for older browsers */
         background-color: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
         border-radius: 15px;
@@ -101,6 +104,7 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       }
 
+      /* center each node at its top/left coordinates */
       .node {
         width: 60px;
         height: 60px;
@@ -111,39 +115,38 @@
         align-items: center;
         font-weight: bold;
         position: absolute;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.5s ease;
-        font-size: 1.2rem;
         z-index: 10;
         border: 3px solid white;
         opacity: 0;
+        /* center: translate + scale(1) default so later scale keeps the translate */
+        transform: translate(-50%, -50%) scale(1);
+        transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
+        font-size: 1.2rem;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
       }
 
+      /* visible node keeps the translate but sets scale (so scale works together) */
       .node.visible {
         opacity: 1;
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
       }
 
+      /* hover grows while still centered */
+      .node:hover.visible {
+        transform: translate(-50%, -50%) scale(1.08);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      /* winner pulse - include translate to preserve positioning while animating scale */
       .node.winner {
         animation: pulse 1s ease-in-out;
         box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.7);
       }
 
       @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      .node:hover.visible {
-        transform: scale(1.1);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        0% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.15); }
+        100% { transform: translate(-50%, -50%) scale(1); }
       }
 
       .root {
@@ -406,6 +409,14 @@
 
       path.hidden {
         opacity: 0;
+      }
+
+      /* smaller screens - scale node sizes & font, reduce stroke width */
+      @media (max-width: 600px) {
+        .node { width: 42px; height: 42px; font-size: 0.95rem; border-width: 2px; }
+        .tournament-slider { width: 200px; }
+        .tree-container { min-height: 220px; }
+        svg line, svg path { stroke-width: 1.2; }
       }
 
       .controls {
@@ -952,6 +963,20 @@
 
         // Initialize
         resetTournament();
+        
+        // redraw connections on window resize and when the tree container changes size
+        window.addEventListener('resize', drawConnections);
+
+        // Prefer ResizeObserver for robust responsiveness (observes the tree container)
+        const treeContainer = document.querySelector('.tree-container');
+        if (window.ResizeObserver) {
+          const ro = new ResizeObserver(() => {
+            // small debounce to avoid too many redraws
+            if (this._drawTimeout) clearTimeout(this._drawTimeout);
+            this._drawTimeout = setTimeout(() => drawConnections(), 50);
+          });
+          ro.observe(treeContainer);
+        }
       });
     </script>
   </body>
