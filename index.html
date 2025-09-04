@@ -162,43 +162,43 @@
       .node-a {
         background-color: #ff9800;
         top: 50%;
-        left: 45%;
+        left: 46%;
       }
 
       .node-a1 {
         background-color: #4caf50;
         top: 30%;
-        left: 40%;
+        left: 45%;
       }
 
       .node-a2 {
         background-color: #f44336;
         top: 70%;
-        left: 40%;
+        left: 45%;
       }
 
       .node-a1-1 {
         background-color: #00bcd4;
         top: 20%;
-        left: 35%;
+        left: 43%;
       }
 
       .node-a1-2 {
         background-color: #e91e63;
         top: 40%;
-        left: 35%;
+        left: 43%;
       }
 
       .node-a2-1 {
         background-color: #ff5722;
         top: 60%;
-        left: 35%;
+        left: 43%;
       }
 
       .node-a2-2 {
         background-color: #607d8b;
         top: 80%;
-        left: 35%;
+        left: 43%;
       }
 
       .node-a1-1-1 {
@@ -234,7 +234,7 @@
       .node-a2-1-2 {
         background-color: #ffc107;
         top: 65%;
-        left: 20%;
+        left: 5%;
       }
 
       .node-a2-2-1 {
@@ -908,10 +908,10 @@
 
           let pathData;
           if (isLeftSide) {
-            const midX = from.x - Math.abs(from.x - to.x) * 0.5;
+            const midX = from.x - Math.abs(from.x - to.x) * 0.2;
             pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
           } else {
-            const midX = from.x + Math.abs(from.x - to.x) * 0.5;
+            const midX = from.x + Math.abs(from.x - to.x) * 0.2;
             pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
           }
 
