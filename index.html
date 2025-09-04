@@ -107,9 +107,9 @@
 
       /* center each node at its top/left coordinates */
       .node {
-        width: 120px;
-        height: 40px;
-        border-radius: 8px;
+        width: 100px;
+        height: 32px;
+        border-radius: 6px;
         color: white;
         display: flex;
         justify-content: center;
@@ -117,15 +117,15 @@
         font-weight: bold;
         position: absolute;
         z-index: 10;
-        border: 2px solid white;
+        border: 1px solid white;
         opacity: 0;
         /* center: translate + scale(1) default so later scale keeps the translate */
         transform: translate(-50%, -50%) scale(1);
         transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
-        font-size: 0.9rem;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        font-size: 0.75rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         text-align: center;
-        padding: 4px;
+        padding: 2px;
       }
 
       /* visible node keeps the translate but sets scale (so scale works together) */
@@ -416,7 +416,7 @@
 
       /* smaller screens - scale node sizes & font, reduce stroke width */
       @media (max-width: 600px) {
-        .node { width: 100px; height: 32px; font-size: 0.8rem; border-width: 1px; padding: 2px; }
+        .node { width: 80px; height: 26px; font-size: 0.65rem; border-width: 1px; padding: 1px; }
         .tournament-slider { width: 200px; }
         .tree-container { height: 70vh; min-height: 220px; }
         svg line, svg path { stroke-width: 1.2; }
