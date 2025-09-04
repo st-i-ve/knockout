@@ -825,7 +825,50 @@
           // i control both node and path visibility together
           updateNodeVisibility(round);
           updatePathVisibility(round);
+          updateNodePositions(round);
           updateRoundInfo(round);
+        }
+
+        function updateNodePositions(round) {
+          // i animate node positions based on tournament round
+          const level3NodesLeft = [
+            'node-a1-1', 'node-a1-2', 'node-a2-1', 'node-a2-2'
+          ];
+          const level3NodesRight = [
+            'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'
+          ];
+
+          if (round >= 1) {
+            // move level 3 nodes to edge positions
+            level3NodesLeft.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '12%';
+              }
+            });
+            
+            level3NodesRight.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '88%';
+              }
+            });
+          } else {
+            // reset to original positions
+            level3NodesLeft.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '30%';
+              }
+            });
+            
+            level3NodesRight.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '70%';
+              }
+            });
+          }
         }
 
         function progressTournament(targetRound) {
