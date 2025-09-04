@@ -824,8 +824,8 @@
         function updateTournament(round) {
           // i control both node and path visibility together
           updateNodeVisibility(round);
-          updatePathVisibility(round);
           updateNodePositions(round);
+          updatePathVisibility(round);
           updateRoundInfo(round);
         }
 
@@ -868,7 +868,15 @@
                 node.style.left = '70%';
               }
             });
+            
           }
+          
+          // redraw connections after position changes but preserve visibility
+          drawConnections();
+          // reapply path visibility after redrawing
+          setTimeout(() => {
+            updatePathVisibility(currentRound);
+          }, 10);
         }
 
         function progressTournament(targetRound) {
