@@ -354,7 +354,6 @@
         stroke-width: 2;
         stroke-linecap: round;
         opacity: 1;
-        transition: opacity 0.5s ease;
       }
 
       line.visible {
@@ -387,7 +386,6 @@
         stroke-width: 2;
         stroke-linecap: round;
         opacity: 1;
-        transition: opacity 0.5s ease;
       }
 
       path.visible {
@@ -468,7 +466,7 @@
       <input
         type="range"
         min="0"
-        max="3"
+        max="4"
         value="0"
         class="tournament-slider"
         id="slider"
@@ -731,7 +729,8 @@
             "Level 4 nodes & all paths visible",
             "Level 3 nodes & level 4 paths hidden",
             "Level 2 nodes & level 3-4 paths hidden",
-            "Root node & level 2-4 paths hidden",
+            "Level 1 nodes & level 2-4 paths hidden",
+            "Final: Root, A, B nodes only",
           ];
           roundInfo.textContent = roundNames[round] || "All nodes hidden";
         }
@@ -842,7 +841,69 @@
                'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'
              ];
    
-             if (round >= 3) {
+             if (round >= 4) {
+                // final round: scale root node and move A, B closer
+                const rootNode = nodes['root'];
+                if (rootNode) {
+                  rootNode.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                }
+                
+                level1NodesLeft.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.left = '40%';
+                  }
+                });
+                
+                level1NodesRight.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.left = '60%';
+                  }
+                });
+                
+                // hide all other levels
+                level2NodesLeft.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'none';
+                  }
+                });
+                
+                level2NodesRight.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'none';
+                  }
+                });
+                
+                level3NodesLeft.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'none';
+                  }
+                });
+                
+                level3NodesRight.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'none';
+                  }
+                });
+              } else if (round >= 3) {
+                // reset root node scale
+                const rootNode = nodes['root'];
+                if (rootNode) {
+                  rootNode.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+                
+                // show all nodes
+                [...level2NodesLeft, ...level2NodesRight, ...level3NodesLeft, ...level3NodesRight].forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'flex';
+                  }
+                });
                // move level 1 nodes to edge positions
                level1NodesLeft.forEach(nodeClass => {
                  const node = nodes[nodeClass];
@@ -964,20 +1025,34 @@
                 }
               });
             } else {
-               // reset all to original positions
-               level1NodesLeft.forEach(nodeClass => {
-                 const node = nodes[nodeClass];
-                 if (node) {
-                   node.style.left = '36%';
-                 }
-               });
-               
-               level1NodesRight.forEach(nodeClass => {
-                 const node = nodes[nodeClass];
-                 if (node) {
-                   node.style.left = '64%';
-                 }
-               });
+                // reset root node scale
+                const rootNode = nodes['root'];
+                if (rootNode) {
+                  rootNode.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+                
+                // show all nodes
+                [...level2NodesLeft, ...level2NodesRight, ...level3NodesLeft, ...level3NodesRight].forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.display = 'flex';
+                  }
+                });
+                
+                // reset all to original positions
+                level1NodesLeft.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.left = '36%';
+                  }
+                });
+                
+                level1NodesRight.forEach(nodeClass => {
+                  const node = nodes[nodeClass];
+                  if (node) {
+                    node.style.left = '64%';
+                  }
+                });
                
                level2NodesLeft.forEach(nodeClass => {
                  const node = nodes[nodeClass];
