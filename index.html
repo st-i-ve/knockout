@@ -107,9 +107,9 @@
 
       /* center each node at its top/left coordinates */
       .node {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
+        width: 120px;
+        height: 40px;
+        border-radius: 8px;
         color: white;
         display: flex;
         justify-content: center;
@@ -117,13 +117,15 @@
         font-weight: bold;
         position: absolute;
         z-index: 10;
-        border: 3px solid white;
+        border: 2px solid white;
         opacity: 0;
         /* center: translate + scale(1) default so later scale keeps the translate */
         transform: translate(-50%, -50%) scale(1);
         transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        padding: 4px;
       }
 
       /* visible node keeps the translate but sets scale (so scale works together) */
@@ -414,7 +416,7 @@
 
       /* smaller screens - scale node sizes & font, reduce stroke width */
       @media (max-width: 600px) {
-        .node { width: 42px; height: 42px; font-size: 0.95rem; border-width: 2px; }
+        .node { width: 100px; height: 32px; font-size: 0.8rem; border-width: 1px; padding: 2px; }
         .tournament-slider { width: 200px; }
         .tree-container { height: 70vh; min-height: 220px; }
         svg line, svg path { stroke-width: 1.2; }
@@ -480,47 +482,47 @@
       <svg id="tree-svg"></svg>
 
       <!-- Root node -->
-      <div class="node root" data-level="0">X</div>
+      <div class="node root" data-level="0">Winner</div>
 
       <!-- Level 1 nodes -->
-      <div class="node node-a" data-level="1">A</div>
-      <div class="node node-b" data-level="1">B</div>
+      <div class="node node-a" data-level="1">Semi Final A</div>
+      <div class="node node-b" data-level="1">Semi Final B</div>
 
       <!-- Level 2 nodes (children of A and B) -->
-      <div class="node node-a1" data-level="2">A1</div>
-      <div class="node node-a2" data-level="2">A2</div>
-      <div class="node node-b1" data-level="2">B1</div>
-      <div class="node node-b2" data-level="2">B2</div>
+      <div class="node node-a1" data-level="2">Quarter A1</div>
+      <div class="node node-a2" data-level="2">Quarter A2</div>
+      <div class="node node-b1" data-level="2">Quarter B1</div>
+      <div class="node node-b2" data-level="2">Quarter B2</div>
 
       <!-- Level 3 nodes -->
-      <div class="node node-a1-1" data-level="3">A1-1</div>
-      <div class="node node-a1-2" data-level="3">A1-2</div>
-      <div class="node node-a2-1" data-level="3">A2-1</div>
-      <div class="node node-a2-2" data-level="3">A2-2</div>
+      <div class="node node-a1-1" data-level="3">Round A1-1</div>
+      <div class="node node-a1-2" data-level="3">Round A1-2</div>
+      <div class="node node-a2-1" data-level="3">Round A2-1</div>
+      <div class="node node-a2-2" data-level="3">Round A2-2</div>
 
-      <div class="node node-b1-1" data-level="3">B1-1</div>
-      <div class="node node-b1-2" data-level="3">B1-2</div>
-      <div class="node node-b2-1" data-level="3">B2-1</div>
-      <div class="node node-b2-2" data-level="3">B2-2</div>
+      <div class="node node-b1-1" data-level="3">Round B1-1</div>
+      <div class="node node-b1-2" data-level="3">Round B1-2</div>
+      <div class="node node-b2-1" data-level="3">Round B2-1</div>
+      <div class="node node-b2-2" data-level="3">Round B2-2</div>
 
       <!-- Level 4 nodes (leaf nodes) -->
-      <div class="node node-a1-1-1" data-level="4">A1-1-1</div>
-      <div class="node node-a1-1-2" data-level="4">A1-1-2</div>
-      <div class="node node-a1-2-1" data-level="4">A1-2-1</div>
-      <div class="node node-a1-2-2" data-level="4">A1-2-2</div>
-      <div class="node node-a2-1-1" data-level="4">A2-1-1</div>
-      <div class="node node-a2-1-2" data-level="4">A2-1-2</div>
-      <div class="node node-a2-2-1" data-level="4">A2-2-1</div>
-      <div class="node node-a2-2-2" data-level="4">A2-2-2</div>
+      <div class="node node-a1-1-1" data-level="4">Man City</div>
+      <div class="node node-a1-1-2" data-level="4">Arsenal</div>
+      <div class="node node-a1-2-1" data-level="4">Liverpool</div>
+      <div class="node node-a1-2-2" data-level="4">Chelsea</div>
+      <div class="node node-a2-1-1" data-level="4">Man United</div>
+      <div class="node node-a2-1-2" data-level="4">Tottenham</div>
+      <div class="node node-a2-2-1" data-level="4">Newcastle</div>
+      <div class="node node-a2-2-2" data-level="4">Brighton</div>
 
-      <div class="node node-b1-1-1" data-level="4">B1-1-1</div>
-      <div class="node node-b1-1-2" data-level="4">B1-1-2</div>
-      <div class="node node-b1-2-1" data-level="4">B1-2-1</div>
-      <div class="node node-b1-2-2" data-level="4">B1-2-2</div>
-      <div class="node node-b2-1-1" data-level="4">B2-1-1</div>
-      <div class="node node-b2-1-2" data-level="4">B2-1-2</div>
-      <div class="node node-b2-2-1" data-level="4">B2-2-1</div>
-      <div class="node node-b2-2-2" data-level="4">B2-2-2</div>
+      <div class="node node-b1-1-1" data-level="4">Aston Villa</div>
+      <div class="node node-b1-1-2" data-level="4">West Ham</div>
+      <div class="node node-b1-2-1" data-level="4">Wolves</div>
+      <div class="node node-b1-2-2" data-level="4">Crystal Palace</div>
+      <div class="node node-b2-1-1" data-level="4">Brentford</div>
+      <div class="node node-b2-1-2" data-level="4">Fulham</div>
+      <div class="node node-b2-2-1" data-level="4">Everton</div>
+      <div class="node node-b2-2-2" data-level="4">Nottingham</div>
     </div>
 
     <div class="controls">
