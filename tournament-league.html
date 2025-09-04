@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tournament League - Knockout System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100dvh;
+        background: linear-gradient(135deg, #1f2937, #374151, #4b5563);
+        padding: 10px;
+        overflow-x: auto;
+        color: #e5e7eb;
+      }
+
+      .container {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        color: #ffffff;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-weight: 700;
+      }
+
+      .description {
+        color: #e5e7eb;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+        opacity: 0.9;
+      }
+
+      .slider-container {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .slider-label {
+        color: #ffffff;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        display: block;
+        font-weight: 600;
+      }
+
+      .tournament-slider {
+        width: 300px;
+        height: 8px;
+        border-radius: 20px;
+        background: rgba(75, 85, 99, 0.6);
+        outline: none;
+        -webkit-appearance: none;
+        margin: 10px 0;
+      }
+
+      .tournament-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #22c55e;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .tournament-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #22c55e;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .round-info {
+        color: #e5e7eb;
+        font-size: 1.1rem;
+        margin: 10px 0;
+        opacity: 0.9;
+      }
+
+      .tree-container {
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        aspect-ratio: 1 / 1;
+        min-height: 300px;
+        background-color: rgba(31, 41, 55, 0.5);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(75, 85, 99, 0.3);
+      }
+
+      .node {
+        width: 100px;
+        height: 32px;
+        border-radius: 20px;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 600;
+        position: absolute;
+        z-index: 10;
+        border: 1px solid rgba(229, 231, 235, 0.3);
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+        transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
+        font-size: 0.75rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        padding: 2px;
+      }
+
+      .node.visible {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .node:hover.visible {
+        transform: translate(-50%, -50%) scale(1.08);
+        box-shadow: 0 8px 16px rgba(34, 197, 94, 0.4);
+        border-color: #22c55e;
+      }
+
+      .node.winner {
+        animation: pulse 1s ease-in-out;
+        box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0.7);
+      }
+
+      @keyframes pulse {
+        0% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.15); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+      }
+
+      .root {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        top: 50%;
+        left: 50%;
+        font-weight: 700;
+      }
+
+      /* Left side nodes (A branch) */
+      .node-a {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        top: 50%;
+        left: 36%;
+      }
+
+      .node-a1 {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        top: 30%;
+        left: 32%;
+      }
+
+      .node-a2 {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        top: 70%;
+        left: 32%;
+      }
+
+      .node-a1-1 {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        top: 20%;
+        left: 30%;
+      }
+
+      .node-a1-2 {
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        top: 40%;
+        left: 30%;
+      }
+
+      .node-a2-1 {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        top: 60%;
+        left: 30%;
+      }
+
+      .node-a2-2 {
+        background: linear-gradient(135deg, #64748b, #475569);
+        top: 80%;
+        left: 30%;
+      }
+
+      .node-a1-1-1 {
+        background: linear-gradient(135deg, #84cc16, #65a30d);
+        top: 15%;
+        left: 12%;
+      }
+
+      .node-a1-1-2 {
+        background: linear-gradient(135deg, #a3a3a3, #737373);
+        top: 25%;
+        left: 12%;
+      }
+
+      .node-a1-2-1 {
+        background: linear-gradient(135deg, #14b8a6, #0d9488);
+        top: 35%;
+        left: 12%;
+      }
+
+      .node-a1-2-2 {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        top: 45%;
+        left: 12%;
+      }
+
+      .node-a2-1-1 {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        top: 55%;
+        left: 12%;
+      }
+
+      .node-a2-1-2 {
+        background: linear-gradient(135deg, #eab308, #ca8a04);
+        top: 65%;
+        left: 12%;
+      }
+
+      .node-a2-2-1 {
+        background: linear-gradient(135deg, #a3e635, #84cc16);
+        top: 75%;
+        left: 12%;
+      }
+
+      .node-a2-2-2 {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        top: 85%;
+        left: 12%;
+      }
+
+      /* Right side nodes (B branch) */
+      .node-b {
+        background: linear-gradient(135deg, #a855f7, #9333ea);
+        top: 50%;
+        left: 64%;
+      }
+
+      .node-b1 {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        top: 30%;
+        left: 68%;
+      }
+
+      .node-b2 {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        top: 70%;
+        left: 68%;
+      }
+
+      .node-b1-1 {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        top: 20%;
+        left: 70%;
+      }
+
+      .node-b1-2 {
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        top: 40%;
+        left: 70%;
+      }
+
+      .node-b2-1 {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        top: 60%;
+        left: 70%;
+      }
+
+      .node-b2-2 {
+        background: linear-gradient(135deg, #64748b, #475569);
+        top: 80%;
+        left: 70%;
+      }
+
+      .node-b1-1-1 {
+        background: linear-gradient(135deg, #84cc16, #65a30d);
+        top: 15%;
+        left: 88%;
+      }
+
+      .node-b1-1-2 {
+        background: linear-gradient(135deg, #a3a3a3, #737373);
+        top: 25%;
+        left: 88%;
+      }
+
+      .node-b1-2-1 {
+        background: linear-gradient(135deg, #14b8a6, #0d9488);
+        top: 35%;
+        left: 88%;
+      }
+
+      .node-b1-2-2 {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        top: 45%;
+        left: 88%;
+      }
+
+      .node-b2-1-1 {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        top: 55%;
+        left: 88%;
+      }
+
+      .node-b2-1-2 {
+        background: linear-gradient(135deg, #eab308, #ca8a04);
+        top: 65%;
+        left: 88%;
+      }
+
+      .node-b2-2-1 {
+        background: linear-gradient(135deg, #a3e635, #84cc16);
+        top: 75%;
+        left: 88%;
+      }
+
+      .node-b2-2-2 {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        top: 85%;
+        left: 88%;
+      }
+
+      svg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      line {
+        stroke: #e5e7eb;
+        stroke-width: 2;
+        stroke-linecap: round;
+        opacity: 1;
+      }
+
+      line.visible {
+        opacity: 1;
+      }
+
+      line.level-4,
+      line.level-3,
+      line.level-2,
+      line.level-1,
+      line.level-0 {
+        opacity: 1;
+      }
+
+      line.hidden {
+        opacity: 0;
+      }
+
+      path {
+        fill: none;
+        stroke: #e5e7eb;
+        stroke-width: 2;
+        stroke-linecap: round;
+        opacity: 1;
+      }
+
+      path.visible {
+        opacity: 1;
+      }
+
+      path.level-4,
+      path.level-3,
+      path.level-2,
+      path.level-1,
+      path.level-0 {
+        opacity: 1;
+      }
+
+      path.hidden {
+        opacity: 0;
+      }
+
+      @media (max-width: 600px) {
+        .node { 
+          width: 80px; 
+          height: 26px; 
+          font-size: 0.65rem; 
+          border-width: 1px; 
+          padding: 1px; 
+        }
+        .tournament-slider { 
+          width: 200px; 
+        }
+        .tree-container { 
+          height: 70vh; 
+          min-height: 220px; 
+        }
+        svg line, svg path { 
+          stroke-width: 1.2; 
+        }
+      }
+
+      .controls {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+      }
+
+      button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 30px;
+        background: rgba(31, 41, 55, 0.8);
+        backdrop-filter: blur(10px);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+      }
+
+      button:hover {
+        background: rgba(34, 197, 94, 0.2);
+        transform: translateY(-3px);
+        border-color: #22c55e;
+        box-shadow: 0 6px 12px rgba(34, 197, 94, 0.3);
+      }
+
+      .instructions {
+        margin-top: 20px;
+        color: #e5e7eb;
+        text-align: center;
+        max-width: 600px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tournament League - Knockout System</h1>
+      <p class="description">
+        Use the slider to progress through tournament rounds. Winners advance to
+        the next level in this league-style tournament!
+      </p>
+    </div>
+
+    <div class="slider-container">
+      <label class="slider-label">Tournament Levels</label>
+      <input
+        type="range"
+        min="0"
+        max="4"
+        value="0"
+        class="tournament-slider"
+        id="slider"
+      />
+      <div class="round-info" id="roundInfo">
+        Level 4 nodes & all paths visible
+      </div>
+    </div>
+
+    <div class="tree-container">
+      <svg id="tree-svg"></svg>
+
+      <!-- Root node -->
+      <div class="node root" data-level="0">Champion</div>
+
+      <!-- Level 1 nodes -->
+      <div class="node node-a" data-level="1">Semi Final A</div>
+      <div class="node node-b" data-level="1">Semi Final B</div>
+
+      <!-- Level 2 nodes -->
+      <div class="node node-a1" data-level="2">Quarter A1</div>
+      <div class="node node-a2" data-level="2">Quarter A2</div>
+      <div class="node node-b1" data-level="2">Quarter B1</div>
+      <div class="node node-b2" data-level="2">Quarter B2</div>
+
+      <!-- Level 3 nodes -->
+      <div class="node node-a1-1" data-level="3">Round A1-1</div>
+      <div class="node node-a1-2" data-level="3">Round A1-2</div>
+      <div class="node node-a2-1" data-level="3">Round A2-1</div>
+      <div class="node node-a2-2" data-level="3">Round A2-2</div>
+      <div class="node node-b1-1" data-level="3">Round B1-1</div>
+      <div class="node node-b1-2" data-level="3">Round B1-2</div>
+      <div class="node node-b2-1" data-level="3">Round B2-1</div>
+      <div class="node node-b2-2" data-level="3">Round B2-2</div>
+
+      <!-- Level 4 nodes (leaf nodes) -->
+      <div class="node node-a1-1-1" data-level="4">Man City</div>
+      <div class="node node-a1-1-2" data-level="4">Arsenal</div>
+      <div class="node node-a1-2-1" data-level="4">Liverpool</div>
+      <div class="node node-a1-2-2" data-level="4">Chelsea</div>
+      <div class="node node-a2-1-1" data-level="4">Man United</div>
+      <div class="node node-a2-1-2" data-level="4">Tottenham</div>
+      <div class="node node-a2-2-1" data-level="4">Newcastle</div>
+      <div class="node node-a2-2-2" data-level="4">Brighton</div>
+      <div class="node node-b1-1-1" data-level="4">Aston Villa</div>
+      <div class="node node-b1-1-2" data-level="4">West Ham</div>
+      <div class="node node-b1-2-1" data-level="4">Wolves</div>
+      <div class="node node-b1-2-2" data-level="4">Crystal Palace</div>
+      <div class="node node-b2-1-1" data-level="4">Brentford</div>
+      <div class="node node-b2-1-2" data-level="4">Fulham</div>
+      <div class="node node-b2-2-1" data-level="4">Everton</div>
+      <div class="node node-b2-2-2" data-level="4">Nottingham</div>
+    </div>
+
+    <div class="controls">
+      <button id="reset-tournament">Reset Tournament</button>
+      <button id="auto-play">Auto Play</button>
+    </div>
+
+    <div class="instructions">
+      <p>
+        Move the slider to advance through tournament rounds. Each round,
+        winners are randomly selected to advance to the next level. The
+        tournament continues until a champion is crowned!
+      </p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const svg = document.getElementById("tree-svg");
+        const slider = document.getElementById("slider");
+        const roundInfo = document.getElementById("roundInfo");
+        const resetBtn = document.getElementById("reset-tournament");
+        const autoPlayBtn = document.getElementById("auto-play");
+
+        let currentRound = 0;
+        let winners = {};
+        let isAutoPlaying = false;
+
+        // i get all nodes for tournament management
+        const nodes = {};
+        document.querySelectorAll(".node").forEach((node) => {
+          const classList = Array.from(node.classList);
+          const nodeClass = classList.find((cls) => cls !== "node");
+          nodes[nodeClass] = node;
+        });
+
+        // i define the tournament structure for each level
+        const tournamentStructure = {
+          4: [
+            "node-a1-1-1", "node-a1-1-2", "node-a1-2-1", "node-a1-2-2",
+            "node-a2-1-1", "node-a2-1-2", "node-a2-2-1", "node-a2-2-2",
+            "node-b1-1-1", "node-b1-1-2", "node-b1-2-1", "node-b1-2-2",
+            "node-b2-1-1", "node-b2-1-2", "node-b2-2-1", "node-b2-2-2",
+          ],
+          3: [
+            "node-a1-1", "node-a1-2", "node-a2-1", "node-a2-2",
+            "node-b1-1", "node-b1-2", "node-b2-1", "node-b2-2",
+          ],
+          2: ["node-a1", "node-a2", "node-b1", "node-b2"],
+          1: ["node-a", "node-b"],
+          0: ["root"],
+        };
+
+        // i created a function to get path level from node relationships
+        function getPathLevel(parent, child) {
+          if (
+            child.includes("-1-1") ||
+            child.includes("-2-1") ||
+            child.includes("-1-2") ||
+            child.includes("-2-2")
+          ) {
+            return 4;
+          }
+          if (child.includes("-1") || child.includes("-2")) {
+            if (!child.includes("-1-") && !child.includes("-2-")) {
+              return 3;
+            }
+          }
+          if (
+            child === "node-a1" ||
+            child === "node-a2" ||
+            child === "node-b1" ||
+            child === "node-b2"
+          ) {
+            return 2;
+          }
+          if (child === "node-a" || child === "node-b") {
+            return 1;
+          }
+          return 0;
+        }
+
+        // i created a function to get node level from node class
+        function getNodeLevel(nodeClass) {
+          if (nodeClass === "root") return 0;
+          if (nodeClass === "node-a" || nodeClass === "node-b") return 1;
+          if (
+            nodeClass === "node-a1" ||
+            nodeClass === "node-a2" ||
+            nodeClass === "node-b1" ||
+            nodeClass === "node-b2"
+          ) return 2;
+          if (nodeClass.includes("-1") || nodeClass.includes("-2")) {
+            if (!nodeClass.includes("-1-") && !nodeClass.includes("-2-")) {
+              return 3;
+            }
+          }
+          if (
+            nodeClass.includes("-1-1") ||
+            nodeClass.includes("-2-1") ||
+            nodeClass.includes("-1-2") ||
+            nodeClass.includes("-2-2")
+          ) return 4;
+          return 4;
+        }
+
+        // i define parent-child relationships for connections
+        const relationships = [
+          { parent: "root", child: "node-a" },
+          { parent: "root", child: "node-b" },
+          { parent: "node-a", child: "node-a1" },
+          { parent: "node-a", child: "node-a2" },
+          { parent: "node-b", child: "node-b1" },
+          { parent: "node-b", child: "node-b2" },
+          { parent: "node-a1", child: "node-a1-1" },
+          { parent: "node-a1", child: "node-a1-2" },
+          { parent: "node-a2", child: "node-a2-1" },
+          { parent: "node-a2", child: "node-a2-2" },
+          { parent: "node-b1", child: "node-b1-1" },
+          { parent: "node-b1", child: "node-b1-2" },
+          { parent: "node-b2", child: "node-b2-1" },
+          { parent: "node-b2", child: "node-b2-2" },
+          { parent: "node-a1-1", child: "node-a1-1-1" },
+          { parent: "node-a1-1", child: "node-a1-1-2" },
+          { parent: "node-a1-2", child: "node-a1-2-1" },
+          { parent: "node-a1-2", child: "node-a1-2-2" },
+          { parent: "node-a2-1", child: "node-a2-1-1" },
+          { parent: "node-a2-1", child: "node-a2-1-2" },
+          { parent: "node-a2-2", child: "node-a2-2-1" },
+          { parent: "node-a2-2", child: "node-a2-2-2" },
+          { parent: "node-b1-1", child: "node-b1-1-1" },
+          { parent: "node-b1-1", child: "node-b1-1-2" },
+          { parent: "node-b1-2", child: "node-b1-2-1" },
+          { parent: "node-b1-2", child: "node-b1-2-2" },
+          { parent: "node-b2-1", child: "node-b2-1-1" },
+          { parent: "node-b2-1", child: "node-b2-1-2" },
+          { parent: "node-b2-2", child: "node-b2-2-1" },
+          { parent: "node-b2-2", child: "node-b2-2-2" },
+        ];
+
+        function updateRoundInfo(round) {
+          const roundNames = [
+            "Level 4 nodes & all paths visible",
+            "Level 3 nodes & level 4 paths hidden",
+            "Level 2 nodes & level 3-4 paths hidden",
+            "Level 1 nodes & level 2-4 paths hidden",
+            "Final: Champion, Semi Finals only",
+          ];
+          roundInfo.textContent = roundNames[round] || "All nodes hidden";
+        }
+
+        function updateNodeVisibility(level) {
+          // i show only nodes at the specific level selected, root always visible
+          Object.values(nodes).forEach((node) => {
+            const classList = Array.from(node.classList);
+            const nodeClass = classList.find(
+              (cls) => cls !== "node" && cls !== "visible" && cls !== "winner"
+            );
+
+            if (nodeClass) {
+              const nodeLevel = getNodeLevel(nodeClass);
+              node.classList.remove("visible", "winner");
+
+              if (nodeLevel === 0) {
+                node.classList.add("visible");
+              } else {
+                const targetLevel = 4 - level;
+                if (nodeLevel === targetLevel) {
+                  node.classList.add("visible");
+                }
+              }
+            }
+          });
+        }
+
+        function updatePathVisibility(level) {
+          // i control which path levels are visible based on the slider
+          document.querySelectorAll("line, path").forEach((connection) => {
+            const parent = connection.getAttribute("data-parent");
+            const child = connection.getAttribute("data-child");
+
+            if (parent && child) {
+              const pathLevel = getPathLevel(parent, child);
+              connection.classList.remove(
+                "hidden", "level-0", "level-1", "level-2", "level-3", "level-4"
+              );
+              connection.classList.add(`level-${pathLevel}`);
+
+              if (pathLevel >= 4 - level + 1) {
+                connection.classList.add("hidden");
+              }
+            }
+          });
+        }
+
+        function selectWinners(currentLevel, nextLevel) {
+          // i group current level nodes by their parent
+          const groups = {};
+
+          relationships.forEach((rel) => {
+            if (tournamentStructure[nextLevel].includes(rel.parent)) {
+              if (!groups[rel.parent]) {
+                groups[rel.parent] = [];
+              }
+              if (tournamentStructure[currentLevel].includes(rel.child)) {
+                groups[rel.parent].push(rel.child);
+              }
+            }
+          });
+
+          // i select one winner from each group
+          const winners = [];
+          Object.keys(groups).forEach((parent) => {
+            const candidates = groups[parent];
+            if (candidates.length > 0) {
+              const winner =
+                candidates[Math.floor(Math.random() * candidates.length)];
+              winners.push({ winner, parent, candidates });
+            }
+          });
+
+          return winners;
+        }
+
+        function updateTournament(round) {
+          // i control both node and path visibility together
+          updateNodeVisibility(round);
+          updateNodePositions(round);
+          updatePathVisibility(round);
+          updateRoundInfo(round);
+        }
+
+        function updateNodePositions(round) {
+          // i animate node positions based on tournament round
+          const level1NodesLeft = ['node-a'];
+          const level1NodesRight = ['node-b'];
+          const level2NodesLeft = ['node-a1', 'node-a2'];
+          const level2NodesRight = ['node-b1', 'node-b2'];
+          const level3NodesLeft = [
+            'node-a1-1', 'node-a1-2', 'node-a2-1', 'node-a2-2'
+          ];
+          const level3NodesRight = [
+            'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'
+          ];
+
+          if (round >= 4) {
+            // final round: scale root node and move semi finals closer
+            const rootNode = nodes['root'];
+            if (rootNode) {
+              rootNode.style.transform = 'translate(-50%, -50%) scale(1.5)';
+            }
+            
+            level1NodesLeft.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '40%';
+              }
+            });
+            
+            level1NodesRight.forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.left = '60%';
+              }
+            });
+            
+            // hide all other levels
+            [...level2NodesLeft, ...level2NodesRight, ...level3NodesLeft, ...level3NodesRight].forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.display = 'none';
+              }
+            });
+          } else {
+            // reset root node scale
+            const rootNode = nodes['root'];
+            if (rootNode) {
+              rootNode.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+            
+            // show all nodes
+            [...level2NodesLeft, ...level2NodesRight, ...level3NodesLeft, ...level3NodesRight].forEach(nodeClass => {
+              const node = nodes[nodeClass];
+              if (node) {
+                node.style.display = 'flex';
+              }
+            });
+
+            // reset positions based on round
+            if (round >= 3) {
+              level1NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '12%';
+              });
+              level1NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '88%';
+              });
+              [...level2NodesLeft, ...level3NodesLeft].forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '12%';
+              });
+              [...level2NodesRight, ...level3NodesRight].forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '88%';
+              });
+            } else if (round >= 2) {
+              level1NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '36%';
+              });
+              level1NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '64%';
+              });
+              [...level2NodesLeft, ...level3NodesLeft].forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '12%';
+              });
+              [...level2NodesRight, ...level3NodesRight].forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '88%';
+              });
+            } else if (round >= 1) {
+              level1NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '36%';
+              });
+              level1NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '64%';
+              });
+              level2NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '32%';
+              });
+              level2NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '68%';
+              });
+              [...level3NodesLeft, ...level3NodesRight].forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = nodeClass.includes('a') ? '12%' : '88%';
+              });
+            } else {
+              // reset all to original positions
+              level1NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '36%';
+              });
+              level1NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '64%';
+              });
+              level2NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '32%';
+              });
+              level2NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '68%';
+              });
+              level3NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '30%';
+              });
+              level3NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) node.style.left = '70%';
+              });
+            }
+          }
+          
+          // redraw connections after position changes
+          drawConnections();
+          setTimeout(() => {
+            updatePathVisibility(currentRound);
+          }, 10);
+        }
+
+        function progressTournament(targetRound) {
+          for (let round = currentRound + 1; round <= targetRound; round++) {
+            if (round <= 4) {
+              const currentLevel = 5 - round;
+              const nextLevel = currentLevel - 1;
+
+              if (nextLevel >= 0) {
+                winners[round] = selectWinners(currentLevel, nextLevel);
+              }
+            }
+          }
+          currentRound = targetRound;
+          updateTournament(currentRound);
+        }
+
+        // i handle slider events
+        slider.addEventListener("input", (e) => {
+          if (!isAutoPlaying) {
+            const targetRound = parseInt(e.target.value);
+            currentRound = targetRound;
+            updateTournament(currentRound);
+          }
+        });
+
+        function resetTournament() {
+          currentRound = 0;
+          winners = {};
+          slider.value = 0;
+          updateTournament(0);
+          drawConnections();
+        }
+
+        function drawConnections() {
+          svg.innerHTML = "";
+
+          relationships.forEach((rel) => {
+            const parentNode = nodes[rel.parent];
+            const childNode = nodes[rel.child];
+
+            if (!parentNode || !childNode) return;
+
+            const parentRect = parentNode.getBoundingClientRect();
+            const childRect = childNode.getBoundingClientRect();
+            const containerRect = svg.getBoundingClientRect();
+
+            const parentCenter = {
+              x: parentRect.left + parentRect.width / 2 - containerRect.left,
+              y: parentRect.top + parentRect.height / 2 - containerRect.top,
+            };
+
+            const childCenter = {
+              x: childRect.left + childRect.width / 2 - containerRect.left,
+              y: childRect.top + childRect.height / 2 - containerRect.top,
+            };
+
+            let element;
+            if (rel.parent === "root") {
+              element = drawStraightLine(parentCenter, childCenter);
+            } else {
+              element = drawLShapedLine(parentCenter, childCenter);
+            }
+
+            element.setAttribute("data-parent", rel.parent);
+            element.setAttribute("data-child", rel.child);
+
+            const pathLevel = getPathLevel(rel.parent, rel.child);
+            element.classList.add(`level-${pathLevel}`);
+          });
+        }
+
+        function drawLShapedLine(from, to) {
+          const path = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+          );
+          const isLeftSide = to.x < from.x;
+
+          let pathData;
+          if (isLeftSide) {
+            const midX = from.x - Math.abs(from.x - to.x) * 0.2;
+            pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
+          } else {
+            const midX = from.x + Math.abs(from.x - to.x) * 0.2;
+            pathData = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
+          }
+
+          path.setAttribute("d", pathData);
+          svg.appendChild(path);
+          return path;
+        }
+
+        function drawStraightLine(from, to) {
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", from.x);
+          line.setAttribute("y1", from.y);
+          line.setAttribute("x2", to.x);
+          line.setAttribute("y2", to.y);
+          svg.appendChild(line);
+          return line;
+        }
+
+        // i handle reset button
+        resetBtn.addEventListener("click", resetTournament);
+
+        // i handle auto play functionality
+        autoPlayBtn.addEventListener("click", () => {
+          if (isAutoPlaying) {
+            isAutoPlaying = false;
+            autoPlayBtn.textContent = "Auto Play";
+          } else {
+            isAutoPlaying = true;
+            autoPlayBtn.textContent = "Stop";
+            autoPlay();
+          }
+        });
+
+        function autoPlay() {
+          if (!isAutoPlaying || currentRound >= 4) {
+            isAutoPlaying = false;
+            autoPlayBtn.textContent = "Auto Play";
+            return;
+          }
+
+          setTimeout(() => {
+            slider.value = currentRound + 1;
+            progressTournament(currentRound + 1);
+            if (isAutoPlaying) {
+              autoPlay();
+            }
+          }, 1500);
+        }
+
+        // i initialize the tournament
+        resetTournament();
+        
+        // i redraw connections on window resize
+        window.addEventListener('resize', drawConnections);
+
+        const treeContainer = document.querySelector('.tree-container');
+        if (window.ResizeObserver) {
+          const ro = new ResizeObserver(() => {
+            if (this._drawTimeout) clearTimeout(this._drawTimeout);
+            this._drawTimeout = setTimeout(() => drawConnections(), 50);
+          });
+          ro.observe(treeContainer);
+        }
+      });
+    </script>
+  </body>
+</html>
