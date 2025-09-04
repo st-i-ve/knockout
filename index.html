@@ -830,54 +830,114 @@
         }
 
         function updateNodePositions(round) {
-          // i animate node positions based on tournament round
-          const level3NodesLeft = [
-            'node-a1-1', 'node-a1-2', 'node-a2-1', 'node-a2-2'
-          ];
-          const level3NodesRight = [
-            'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'
-          ];
-
-          if (round >= 1) {
-            // move level 3 nodes to edge positions
-            level3NodesLeft.forEach(nodeClass => {
-              const node = nodes[nodeClass];
-              if (node) {
-                node.style.left = '12%';
-              }
-            });
+            // i animate node positions based on tournament round
+            const level2NodesLeft = ['node-a1', 'node-a2'];
+            const level2NodesRight = ['node-b1', 'node-b2'];
+            const level3NodesLeft = [
+              'node-a1-1', 'node-a1-2', 'node-a2-1', 'node-a2-2'
+            ];
+            const level3NodesRight = [
+              'node-b1-1', 'node-b1-2', 'node-b2-1', 'node-b2-2'
+            ];
+  
+            if (round >= 2) {
+              // move level 2 nodes to edge positions
+              level2NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '12%';
+                }
+              });
+              
+              level2NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '88%';
+                }
+              });
+              
+              // keep level 3 nodes at edge positions
+              level3NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '12%';
+                }
+              });
+              
+              level3NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '88%';
+                }
+              });
+            } else if (round >= 1) {
+              // reset level 2 to original positions
+              level2NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '32%';
+                }
+              });
+              
+              level2NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '68%';
+                }
+              });
+              
+              // move level 3 nodes to edge positions
+              level3NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '12%';
+                }
+              });
+              
+              level3NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '88%';
+                }
+              });
+            } else {
+              // reset all to original positions
+              level2NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '32%';
+                }
+              });
+              
+              level2NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '68%';
+                }
+              });
+              
+              level3NodesLeft.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '30%';
+                }
+              });
+              
+              level3NodesRight.forEach(nodeClass => {
+                const node = nodes[nodeClass];
+                if (node) {
+                  node.style.left = '70%';
+                }
+              });
+            }
             
-            level3NodesRight.forEach(nodeClass => {
-              const node = nodes[nodeClass];
-              if (node) {
-                node.style.left = '88%';
-              }
-            });
-          } else {
-            // reset to original positions
-            level3NodesLeft.forEach(nodeClass => {
-              const node = nodes[nodeClass];
-              if (node) {
-                node.style.left = '30%';
-              }
-            });
-            
-            level3NodesRight.forEach(nodeClass => {
-              const node = nodes[nodeClass];
-              if (node) {
-                node.style.left = '70%';
-              }
-            });
-            
+            // redraw connections after position changes but preserve visibility
+            drawConnections();
+            // reapply path visibility after redrawing
+            setTimeout(() => {
+              updatePathVisibility(currentRound);
+            }, 10);
           }
-          
-          // redraw connections after position changes but preserve visibility
-          drawConnections();
-          // reapply path visibility after redrawing
-          setTimeout(() => {
-            updatePathVisibility(currentRound);
-          }, 10);
-        }
 
         function progressTournament(targetRound) {
           for (let round = currentRound + 1; round <= targetRound; round++) {
